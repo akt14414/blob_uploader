@@ -1,29 +1,35 @@
-name: Upload CSV to Azure Blob Storage
+name: Upload CSVs from test_folder to Azure Blob Storage
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'data/*.csv'   # Only run when CSV files change
+      - 'test_folder/*.csv'  # Only trigger when CSVs in test_folder change
 
 jobs:
   upload:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install Azure CLI
-      uses: azure/setup-azure@v1
+      - name: Install Azure CLI
+        uses: azure/setup-azure@v1
 
-    - name: Upload CSV to Blob Storage
-      env:
-        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-      run: |
-        az storage blob upload \
-          --file ./data/sample_data.csv \
-          --container-name raw-data \
-          --name myfolder/sample_data.csv \
-          --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
+      - name: Upload CSVs to Blob under test_folder/
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        run: |
+          echo "Uploading files from test_folder/ to Azure Blob Storage..."
+
+          for file in ./test_folder/*.csv; do
+            filename=$(basename "$file")
+            echo "Uploading $filename..."
+            az storage blob upload \
+              --file "$file" \
+              --container-name raw-data \
+              --name test_folder/"$filename" \
+              --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
+          done
