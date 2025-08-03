@@ -5,18 +5,19 @@ on:
     branches:
       - main
     paths:
-      - 'test_folder/*.csv'  # Only trigger when CSVs in test_folder change
+      - 'test_folder/*.csv'
 
 jobs:
   upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Install Azure CLI
-        uses: azure/setup-azure@v1
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Upload CSVs to Blob under test_folder/
         env:
