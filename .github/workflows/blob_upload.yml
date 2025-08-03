@@ -1,0 +1,29 @@
+name: Upload test.csv to Azure Blob
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'test_folder/test.csv'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Azure CLI
+        uses: azure/setup-azure@v3
+
+      - name: Upload CSV to Blob Storage
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        run: |
+          az storage blob upload \
+            --file ./test_folder/test.csv \
+            --container-name mycontainer \
+            --name test_folder/test.csv \
+            --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
